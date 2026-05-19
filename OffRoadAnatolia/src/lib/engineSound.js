@@ -1,16 +1,16 @@
 // Motor sesi profilleri - her araç için yerel ses dosyası
 // Ses dosyaları public/sounds/ klasöründe barındırılır
 
-// Araç ID -> ses dosyası eşleştirmeleri
+// Araç ID -> ses dosyası eşleştirmeleri (her araca özel)
 export const vehicleSoundMap = {
-  1: '/sounds/diesel_heavy.mp3',     // Ford Ranger Wildtrak - 2.0L Bi-Turbo
-  2: '/sounds/diesel_heavy.mp3',     // Toyota Hilux GR Sport - 2.8L D-4D
-  3: '/sounds/diesel_v6.mp3',        // Volkswagen Amarok - 3.0L V6 TDI
-  4: '/sounds/diesel_suv.mp3',       // Hyundai Tucson - 1.6L CRDi
-  5: '/sounds/diesel_medium.mp3',    // Toyota Hilux Invincible - 2.4L D-4D
-  6: '/sounds/diesel_luxury.mp3',    // Mercedes X-Class - 2.3L Twin-Turbo
-  7: '/sounds/diesel_medium.mp3',    // Mitsubishi L200 - 2.4L MIVEC
-  8: '/sounds/diesel_heavy.mp3',     // Nissan Navara - 2.3L dCi Twin-Turbo
+  1: '/sounds/ford_ranger.mp3',      // Ford Ranger Wildtrak - 2.0L Bi-Turbo
+  2: '/sounds/hilux_gr.mp3',         // Toyota Hilux GR Sport - 2.8L D-4D
+  3: '/sounds/amarok_v6.mp3',        // Volkswagen Amarok - 3.0L V6 TDI
+  4: '/sounds/tucson.mp3',           // Hyundai Tucson - 1.6L CRDi
+  5: '/sounds/hilux_invincible.mp3', // Toyota Hilux Invincible - 2.4L D-4D
+  6: '/sounds/xclass.mp3',           // Mercedes X-Class - 2.3L Twin-Turbo
+  7: '/sounds/l200.mp3',             // Mitsubishi L200 - 2.4L MIVEC
+  8: '/sounds/navara.mp3',           // Nissan Navara - 2.3L dCi Twin-Turbo
 };
 
 // Fallback sıralama: araç sesi yoksa genel bir ses dene

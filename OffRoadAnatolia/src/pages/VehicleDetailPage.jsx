@@ -1,7 +1,8 @@
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import vehicles from "../data/vehicles";
 import { playEngineSound } from "../lib/engineSound";
+import { calculateTerrainScores, getBestTerrain } from "../lib/terrainScore";
 
 function SpecBar({ label, value, max, unit }) {
   const percentage = Math.min((value / max) * 100, 100);
@@ -87,6 +88,8 @@ export default function VehicleDetailPage() {
   }
 
   const { specs } = vehicle;
+  const terrainScores = useMemo(() => calculateTerrainScores(specs), [specs]);
+  const bestTerrain = useMemo(() => getBestTerrain(terrainScores), [terrainScores]);
 
   const similar = vehicles
     .filter((v) => v.id !== vehicle.id && v.specs.fuelType === specs.fuelType)
@@ -238,7 +241,91 @@ export default function VehicleDetailPage() {
         </div>
       </div>
 
-      {/* Similar Vehicles */}
+      {/* Terrain Scores - Full Width */}
+      <div className="px-4 sm:px-8 lg:px-12 mb-16">
+        <div className="bg-offroad-card border border-offroad-border rounded-3xl p-6 md:p-10 animate-fade-in" style={{ animationDelay: '300ms' }}>
+          <h3 className="text-lg font-bold text-offroad-text mb-2 flex items-center gap-2" style={{ fontFamily: 'Rajdhani, sans-serif' }}>
+            <svg viewBox="0 0 24 24" fill="none" className="w-5 h-5 text-offroad-accent" stroke="currentColor" strokeWidth="2">
+              <path d="M12 2L2 7l10 5 10-5-10-5z" />
+              <path d="M2 17l10 5 10-5" />
+              <path d="M2 12l10 5 10-5" />
+            </svg>
+            ARAZİ PUANLAMASI
+          </h3>
+          <p className="text-offroad-muted text-sm mb-8">
+            Aracın teknik özellikleri analiz edilerek farklı arazi koşullarındaki performansı hesaplandı.
+          </p>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {[
+              {
+                type: 'rock', emoji: '\ud83e\udea8', label: 'Kaya Tırmanışı', score: terrainScores.rock,
+                desc: 'Tork, yaklaşma/uzaklaşma açısı ve kilitli diferansiyel temel alınır.',
+                gradient: 'from-stone-600 to-stone-800'
+              },
+              {
+                type: 'mud', emoji: '\ud83d\udfe4', label: 'Çamur Performansı', score: terrainScores.mud,
+                desc: 'Su geçiş derinliği, 4x4 sistem kalitesi ve tork ağırlıklı hesaplanır.',
+                gradient: 'from-amber-800 to-amber-950'
+              },
+              {
+                type: 'sand', emoji: '\ud83c\udfdc\ufe0f', label: 'Kum / Çöl', score: terrainScores.sand,
+                desc: 'Beygir gücü, düşük ağırlık ve yerden yükseklik ön plana çıkar.',
+                gradient: 'from-orange-700 to-orange-900'
+              },
+            ].map((t) => (
+              <div
+                key={t.type}
+                className={`relative rounded-2xl p-6 border transition-all duration-500 overflow-hidden ${
+                  bestTerrain.type === t.type
+                    ? 'border-offroad-accent/50 shadow-lg shadow-offroad-accent/10 scale-[1.02]'
+                    : 'border-offroad-border/50 hover:border-offroad-border'
+                }`}
+              >
+                {/* Background gradient */}
+                <div className={`absolute inset-0 bg-gradient-to-br ${t.gradient} opacity-10`} />
+
+                {/* Best terrain badge */}
+                {bestTerrain.type === t.type && (
+                  <div className="absolute top-3 right-3 bg-offroad-accent text-white text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wider">
+                    En İyi
+                  </div>
+                )}
+
+                <div className="relative">
+                  <div className="text-3xl mb-3">{t.emoji}</div>
+                  <h4 className="text-base font-bold text-offroad-text mb-1" style={{ fontFamily: 'Rajdhani, sans-serif' }}>
+                    {t.label}
+                  </h4>
+                  <p className="text-xs text-offroad-muted mb-5 leading-relaxed">{t.desc}</p>
+
+                  {/* Score circle */}
+                  <div className="flex items-end gap-3">
+                    <div className={`text-4xl font-bold ${
+                      bestTerrain.type === t.type ? 'text-offroad-accent' : 'text-offroad-text'
+                    }`} style={{ fontFamily: 'Rajdhani, sans-serif' }}>
+                      {t.score}
+                    </div>
+                    <span className="text-offroad-muted text-sm mb-1">/ 10</span>
+                  </div>
+
+                  {/* Score bar */}
+                  <div className="mt-3 h-2 bg-offroad-darker rounded-full overflow-hidden">
+                    <div
+                      className={`h-full rounded-full transition-all duration-1000 ease-out ${
+                        bestTerrain.type === t.type
+                          ? 'bg-gradient-to-r from-offroad-accent to-offroad-accent-light'
+                          : 'bg-offroad-muted/40'
+                      }`}
+                      style={{ width: `${t.score * 10}%` }}
+                    />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
       {similar.length > 0 && (
         <div className="px-4 sm:px-8 lg:px-12">
           <h3 className="text-2xl font-bold text-offroad-text mb-6" style={{ fontFamily: "Rajdhani, sans-serif" }}>

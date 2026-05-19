@@ -1,9 +1,12 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { playEngineSound } from "../lib/engineSound";
+import { calculateTerrainScores, getBestTerrain } from "../lib/terrainScore";
 
 export default function VehicleCard({ vehicle, onClick, index }) {
   const [isEngineOn, setIsEngineOn] = useState(false);
   const engineRef = useRef(null);
+  const terrainScores = useMemo(() => calculateTerrainScores(vehicle.specs), [vehicle.specs]);
+  const bestTerrain = useMemo(() => getBestTerrain(terrainScores), [terrainScores]);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -112,6 +115,27 @@ export default function VehicleCard({ vehicle, onClick, index }) {
               Yaklaşma
             </div>
           </div>
+        </div>
+
+        {/* Terrain Scores */}
+        <div className="flex items-center gap-2 mt-4">
+          {[
+            { emoji: '🪨', label: 'Kaya', score: terrainScores.rock, type: 'rock' },
+            { emoji: '🟤', label: 'Çamur', score: terrainScores.mud, type: 'mud' },
+            { emoji: '🏜️', label: 'Kum', score: terrainScores.sand, type: 'sand' },
+          ].map((t) => (
+            <div
+              key={t.type}
+              className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all duration-300 ${
+                bestTerrain.type === t.type
+                  ? 'bg-offroad-accent/15 border border-offroad-accent/40 text-offroad-accent'
+                  : 'bg-offroad-darker border border-offroad-border/50 text-offroad-muted'
+              }`}
+            >
+              <span className="text-sm">{t.emoji}</span>
+              <span style={{ fontFamily: 'Rajdhani, sans-serif' }}>{t.score}</span>
+            </div>
+          ))}
         </div>
 
         <div className="grow" />

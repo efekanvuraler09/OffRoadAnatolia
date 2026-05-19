@@ -1,0 +1,5 @@
+{
+  "rewrites": [
+    { "source": "/((?!assets|sounds|.*\\.png|.*\\.svg|.*\\.mp3).*)", "destination": "/index.html" }
+  ]
+}
