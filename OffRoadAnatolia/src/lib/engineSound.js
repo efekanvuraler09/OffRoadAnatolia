@@ -13,15 +13,18 @@ export const vehicleSoundMap = {
   8: '/sounds/navara.mp3',           // Nissan Navara - 2.3L dCi Twin-Turbo
 };
 
-// Fallback sıralama: araç sesi yoksa genel bir ses dene
-const FALLBACK_SOUND = '/sounds/diesel_medium.mp3';
+// Fallback: araç sesi yoksa genel bir ses dene
+const FALLBACK_SOUND = '/sounds/amarok_v6.mp3';
+
+// iOS cihaz tespiti — iOS Safari'de audio.volume programatik olarak değiştirilemez
+const isIOS = typeof navigator !== 'undefined' && /iPad|iPhone|iPod/.test(navigator.userAgent);
 
 export function playEngineSound(vehicleId) {
   const soundUrl = vehicleSoundMap[vehicleId] || FALLBACK_SOUND;
   
   const audio = new Audio(soundUrl);
-  audio.volume = 0.7;
-  audio.loop = true; // Motor sesi sürekli çalsın (rölanti efekti)
+  if (!isIOS) audio.volume = 0.7;
+  audio.loop = true;
   
   const playPromise = audio.play();
   if (playPromise) {
@@ -33,17 +36,25 @@ export function playEngineSound(vehicleId) {
   return {
     audio,
     stop: () => {
-      // Fade out efekti - ani kapanma yerine yumuşak geçiş
-      const fadeOut = setInterval(() => {
-        if (audio.volume > 0.05) {
-          audio.volume = Math.max(0, audio.volume - 0.05);
-        } else {
-          clearInterval(fadeOut);
-          audio.pause();
-          audio.currentTime = 0;
-          audio.volume = 0.7;
-        }
-      }, 50);
+      if (isIOS) {
+        // iOS: Volume değiştirilemez, direkt durdur
+        audio.pause();
+        audio.currentTime = 0;
+      } else {
+        // Desktop: Fade out efekti — yumuşak geçiş
+        let vol = audio.volume;
+        const fadeOut = setInterval(() => {
+          vol -= 0.05;
+          if (vol > 0.05) {
+            audio.volume = vol;
+          } else {
+            clearInterval(fadeOut);
+            audio.pause();
+            audio.currentTime = 0;
+            audio.volume = 0.7;
+          }
+        }, 50);
+      }
     },
   };
 }
